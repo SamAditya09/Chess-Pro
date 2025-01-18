@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="/styles/chessboard-1.0.0.min.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #a08888;
+        margin: 0;
+      }
+
+      .form-container {
+        width: 300px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .form-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .form-label {
+        width: 100px;
+        text-align: right;
+        font-size: 1rem;
+        color: #333;
+      }
+
+      .form-input {
+        flex: 1;
+        padding: 8px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+      }
+
+      .form-button {
+        padding: 10px 15px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: none;
+        background-color: #4caf50;
+        color: white;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        width: 100%;
+      }
+
+      
+      button:hover:not(:disabled) {
+        background-color: #45a049;
+      }
+
+      
+      button:disabled {
+        background-color: #e19c9c;
+        cursor: not-allowed;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin: 20px;
+        text-align: center;
+        color: #333;
+      }
+
+      #gameStatus {
+        font-size: 1.2rem;
+        margin: 10px 0;
+        color: #333;
+        text-align: center;
+      }
+
+      #gameContainer {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+      }
+      
+      #currentPlayer,
+      #opponentPlayer {
+        display: none;
+      }
+
+      #currentPlayer {
+        position: absolute;
+        bottom: -25px; 
+        left: 18px; 
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 5px 15px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5); 
+        text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+        z-index: 1; 
+      }
+
+      #opponentPlayer {
+        position: absolute;
+        top: -25px; 
+        right: 20rem; 
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 5px 15px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+        z-index: 1;
+      }
+
+      .player-name {
+        font-family: "Arial", sans-serif; 
+        text-transform: uppercase; 
+      }
+
+      #chessboard {
+        width: 450px;
+        height: 450px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        position: relative;
+        margin: 10px;
+      }
+
+      #controls {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border: none;
+        background-color: #4caf50;
+        color: white;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .check {
+        color: red;
+        font-weight: bold;
+      }
+
+      .player-turn {
+        font-weight: bold;
+        color: #000;
+      }
+
+      .spectator-info {
+        font-size: 1rem;
+        color: #777;
+        margin-top: 15px;
+        text-align: center;
+      }
+
+      #chatBox {
+        width: 250px;
+        height: 450px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        background-color: #f0dab7;
+      }
+
+      #chatMessages {
+        max-height: 200px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        padding-right: 10px;
+      }
+
+      input {
+        padding: 10px;
+        font-size: 1rem;
+        border-radius: 5px;
+      }
+
+      #chatInput {
+        margin-bottom: 1px;
+        width: auto;
+      }
+
+      #sendMessageBtn {
+        width: 100%;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px;
+        font-size: 1rem;
+        border-radius: 5px;
+      }
+
+      #sendMessageBtn:hover {
+        background-color: #45a049;
+      }
+
+      @media (max-width: 600px) {
+        #chessboard {
+          width: 100%;
+          height: 300px;
+        }
+        #chatBox {
+          width: 100%;
+        }
+        button {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="/scripts/chessboard-1.0.0.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
+      integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <h1>Chess Game</h1>
+    <div class="form-container">
+      <div class="form-row">
+        <label for="usernameInput" class="form-label">Username:</label>
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Your Username"
+          required
+          class="form-input"
+        />
+      </div>
+      <div class="form-row">
+        <label for="roomIdInput" class="form-label">Room ID:</label>
+        <input
+          id="roomIdInput"
+          type="text"
+          placeholder="Room ID"
+          required
+          class="form-input"
+        />
+      </div>
+      <button id="joinBtn" class="form-button">Join Game</button>
+    </div>
+
+    <div id="gameStatus">
+      <span id="turnInfo"></span>
+      <span id="checkInfo" class="check"></span>
+    </div>
+
+    <div id="gameContainer">
+      <div id="currentPlayer" class="player-name"></div>
+      <div id="opponentPlayer" class="player-name"></div>
+      <div id="chessboard"></div>
+      <div id="chatBox">
+        <div id="chatMessages">
+          <!-- Messages will appear here -->
+        </div>
+        <input id="chatInput" type="text" placeholder="Type a message..." />
+        <button id="sendMessageBtn">Send</button>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button id="resetBtn">Restart Game</button>
+      <button id="flipBoardBtn">Flip Board</button>
+    </div>
+
+    <div id="spectatorInfo" class="spectator-info"></div>
+
+    <script>
+      let socket = null;
+      let playerRole = "spectator";
+      let roomId = "";
+      let username = "";
+      let chessBoard;
+      let players = {};
+      const chess = new Chess();
+      let flipped = false;
+
+      //Join Room
+      document.getElementById("joinBtn").addEventListener("click", () => {
+        username = document.getElementById("usernameInput").value.trim();
+        roomId = document.getElementById("roomIdInput").value.trim();
+
+        if (username && roomId) {
+          socket = io();
+          socket.emit("joinRoom", { roomId, username });
+
+          // Hide the input fields after joining
+          document.getElementById("usernameInput").disabled = true;
+          document.getElementById("roomIdInput").disabled = true;
+          document.getElementById("joinBtn").disabled = true;
+
+          // Flip the board when both players agree
+          socket.on("flipBoard", (newRole) => {
+            const newOrientation = newRole === "white" ? "white" : "black";
+            playerRole = newRole;
+            chessBoard.orientation(newOrientation);
+            flipped = !flipped;
+            updateOpponentName(players, playerRole);
+            alert("Board has been flipped.");
+          });
+
+          // Handle reset game button
+          document.getElementById("resetBtn").addEventListener("click", () => {
+            if (playerRole === "spectator") {
+              alert("Spectators cannot request a restart.");
+              return;
+            }
+            socket.emit("resetGameRequest", roomId);
+          });
+
+          // Listen for restart game request from the opponent
+          socket.on("resetGameRequest", () => {
+            if (playerRole === "spectator") {
+              alert(
+                "You are a spectator and cannot respond to a restart request."
+              );
+              return;
+            }
+            const agree = confirm(
+              "Your opponent has requested to restart the game. Do you agree?"
+            );
+            if (agree) {
+              socket.emit("resetGameConfirm", roomId);
+            } else {
+              socket.emit("resetGameDecline", roomId);
+            }
+          });
+
+          // Listen for restart game confirmation
+          socket.on("resetGameConfirmed", () => {
+            chess.reset();
+            chessBoard.position("start");
+            alert("Game has been reset.");
+          });
+
+          // Listen for restart game decline
+          socket.on("resetGameDeclined", () => {
+            alert("Your opponent declined the restart request.");
+          });
+
+          // Handle flip board button
+          document
+            .getElementById("flipBoardBtn")
+            .addEventListener("click", () => {
+              console.log("Flip board button clicked");
+              console.log("Socket:", socket);
+              console.log("Room ID:", roomId);
+
+              socket.emit("flipBoardRequest", roomId);
+            });
+
+          // Listen for flip board requests from the server
+          socket.on("flipBoardRequest", () => {
+            console.log("Received flip board request");
+            if (!flipped) {
+              const agree = confirm(
+                "Your opponent has requested to flip the board. Do you agree?"
+              );
+              if (agree) {
+                socket.emit("flipBoardConfirm", roomId);
+              } else {
+                flipped = false;
+              }
+            }
+          });
+
+          // Update role when board is flipped
+          socket.on("role", (newRole) => {
+            console.log("Received new role:", newRole);
+
+            playerRole = newRole;
+            const newOrientation = newRole === "white" ? "white" : "black";
+
+            // Initialize the chessboard if not already created
+            if (!chessBoard) {
+              initializeBoard(newRole);
+            } else {
+              chessBoard.orientation(newOrientation);
+            }
+
+            alert(`Your role has been switched to ${newRole}.`);
+          });
+
+          // Update opponent name display
+          function updateOpponentName(players, playerRole) {
+            if (players.white && players.black) {
+              const opponentName =
+                playerRole === "white"
+                  ? players.black.username
+                  : players.white.username;
+
+              document.getElementById("currentPlayer").style.display = "block";
+              document.getElementById("currentPlayer").textContent = `You: ${
+                playerRole === "white"
+                  ? players.white.username
+                  : players.black.username
+              }`;
+
+              document.getElementById("opponentPlayer").style.display = "block";
+              document.getElementById(
+                "opponentPlayer"
+              ).textContent = `Opponent: ${opponentName}`;
+            } else {
+              document.getElementById("opponentPlayer").style.display = "block";
+              document.getElementById("opponentPlayer").textContent =
+                "Waiting for opponent...";
+            }
+          }
+        }
+
+        // Update players list from server
+        socket.on("updatePlayers", (updatePlayers) => {
+          console.log("Update players:", updatePlayers);
+          players = updatePlayers;
+          updateOpponentName(players, playerRole);
+        });
+
+        // Chat message functionality
+        document
+          .getElementById("sendMessageBtn")
+          .addEventListener("click", () => {
+            const message = document.getElementById("chatInput").value.trim();
+            if (message) {
+              socket.emit("chatMessage", { roomId, message });
+              document.getElementById("chatInput").value = "";
+            }
+          });
+
+        socket.on("chatMessage", (data) => {
+          const { message, playerName } = data;
+          const messageElement = document.createElement("div");
+          messageElement.style.padding = "5px";
+          messageElement.innerHTML = `<strong>${playerName}:</strong> ${message}`;
+          document.getElementById("chatMessages").appendChild(messageElement);
+          document.getElementById("chatMessages").scrollTop =
+            document.getElementById("chatMessages").scrollHeight;
+        });
+
+        // Handle game over messages
+        socket.on("gameOverMessage", (message) => {
+          alert(message);
+        });
+
+        // Handle king in check alerts
+        socket.on("kingInCheckAlert", (message) => {
+          alert(message);
+        });
+
+        // Listen for game state updates from the server
+        socket.on("gameState", (fen) => {
+          chess.load(fen);
+          chessBoard.position(fen);
+        });
+
+        socket.on("gameActionAlert2", (message) => {
+          alert(message);
+        });
+      });
+
+      // Initialize the chessboard
+      const initializeBoard = (role) => {
+        const orientation = role === "white" ? "white" : "black";
+        chessBoard = ChessBoard("chessboard", {
+          draggable: true,
+          position: "start",
+          pieceTheme: "/img/chesspieces/wikipedia/{piece}.png",
+          orientation: orientation,
+          onDrop: (source, target) => {
+            if (playerRole === "spectator") {
+              alert("You are a spectator and cannot make moves.");
+              return "snapback";
+            }
+
+            // Adjust for flipped board if needed
+            if (flipped) {
+              [source, target] = [target, source];
+            }
+
+            const currentTurn = chess.turn();
+            const expectedTurn = playerRole === "white" ? "w" : "b";
+            if (currentTurn !== expectedTurn) {
+              alert("It's not your turn.");
+              return "snapback";
+            }
+
+            // Check if the move is valid
+            const move = {
+              from: source,
+              to: target,
+              promotion: "q",
+            };
+            const isValidMove = chess.move(move);
+            if (isValidMove) {
+              const isInCheck = chess.in_check();
+              const isCheckmate = chess.in_checkmate();
+              if (isInCheck) {
+                const checkGiver = currentTurn === "w" ? "White" : "Black";
+
+                const checkReceiver = currentTurn === "w" ? "Black" : "White";
+
+                if (checkReceiver === "Black") {
+                  socket.emit("kingInCheck", { roomId, player: "Black" });
+                } else if (checkReceiver === "White") {
+                  socket.emit("kingInCheck", { roomId, player: "White" });
+                }
+              }
+
+              // Check for checkmate
+              if (isCheckmate) {
+                const winner = currentTurn === "w" ? "White" : "Black";
+                alert(`${winner} wins! Checkmate!`);
+
+                socket.emit("gameOver", { winner });
+              }
+
+              // Send move to server
+              socket.emit("makeMove", { roomId, move });
+            } else {
+              alert("Invalid move. Try again.");
+              return "snapback";
+            }
+          },
+        });
+      };
+    </script>
+  </body>
+</html>
